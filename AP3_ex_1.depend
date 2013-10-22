@@ -1,0 +1,27 @@
+# depslib dependency file v1.0
+1382027841 source:c:\users\antonbelev\desktop\glasgow_year_3\ap3\code_blocks\lab_1\ap3_ex_1\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1382124723 source:c:\users\antonbelev\desktop\glasgow_year_3\ap3\code_blocks\lab_1\ap3_ex_1\date.c
+	<string.h>
+	<stdlib.h>
+	"date.h"
+
+1381403082 c:\users\antonbelev\desktop\glasgow_year_3\ap3\code_blocks\lab_1\ap3_ex_1\date.h
+
+1382463760 source:c:\users\antonbelev\desktop\glasgow_year_3\ap3\code_blocks\lab_1\ap3_ex_1\tldlist.c
+	"tldlist.h"
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+
+1382454886 source:c:\users\antonbelev\desktop\glasgow_year_3\ap3\code_blocks\lab_1\ap3_ex_1\tldmonitor.c
+	"date.h"
+	"tldlist.h"
+	<stdio.h>
+	<string.h>
+
+1381403090 c:\users\antonbelev\desktop\glasgow_year_3\ap3\code_blocks\lab_1\ap3_ex_1\tldlist.h
+	"date.h"
+
