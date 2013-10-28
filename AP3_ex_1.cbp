@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="01/01/2000 01/01/2100 small.txt" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>

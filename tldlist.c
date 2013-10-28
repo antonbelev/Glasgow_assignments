@@ -3,11 +3,12 @@
 #include <string.h>
 #include <stdio.h>
 
-struct date {
+//TODO REMOVE THE DATE STRUCK THAT IS SOOO WRONNNG!!!
+/*struct date {
     char *year;
     char *month;
     char *day;
-};
+};*/
 
 struct tldlist{
     Date *begin;
@@ -23,7 +24,7 @@ struct tldnode{
     TLDNode *right;
     long count;
     char *tld;
-    int height;
+    long height;
 };
 
 //TODO
@@ -38,7 +39,125 @@ static int isEmpty(TLDList *list)
     return list->root == NULL ? 1 : 0;
 }
 
-TLDNode *tldnode_create(TLDNode *parent, char *tld, int height)
+static int isRoot(TLDNode *node)
+{
+   return node->parent == NULL ? 1 : 0;
+}
+
+static int degree(TLDNode *node)
+{
+    int degree = 0;
+    if (node->left != NULL)
+        degree++;
+    if (node->right != NULL)
+        degree++;
+    return degree;
+}
+
+static int isLeaf(TLDNode *node)
+{
+   return degree(node) == 0 ? 1 : 0;
+}
+
+static int isInternal(TLDNode *node)
+{
+   return degree(node) == 2 ? 1 : 0;
+}
+
+static int isLeftChild(TLDNode *node)
+{
+   if (node->parent == NULL)
+        return 0;
+   return node == (node->parent->left) ? 1 : 0;
+}
+
+static int isRightChild(TLDNode *node)
+{
+    if (node->parent == NULL)
+        return 0;
+    return node == (node->parent->right) ? 1 : 0;
+}
+
+static int hasLeft(TLDNode *node)
+{
+   return node->left != NULL ? 1 : 0;
+}
+
+static int hasRight(TLDNode *node)
+{
+   return node->right != NULL ? 1 : 0;
+}
+
+static long getLeftHeight(TLDNode *x)
+{
+    if (x == NULL)
+        return 0;
+    if (x->left == NULL)
+        return 0;
+    return x->left->height;
+}
+
+static long getRightHeight(TLDNode *x)
+{
+    if (x == NULL)
+        return 0;
+    if (x->right == NULL)
+        return 0;
+    return x->right->height;
+}
+
+static long getLeftRightHeight(TLDNode *x)
+{
+    if (x == NULL)
+        return 0;
+    if (x->left == NULL)
+        return 0;
+    if (x->left->right == NULL)
+        return 0;
+    return x->left->right->height;
+}
+
+static long getLeftLeftHeight(TLDNode *x)
+{
+    if (x == NULL)
+        return 0;
+    if (x->left == NULL)
+        return 0;
+    if (x->left->left == NULL)
+        return 0;
+    return x->left->left->height;
+}
+
+static long getRightRightHeight(TLDNode *x)
+{
+    if (x == NULL)
+        return 0;
+    if (x->right == NULL)
+        return 0;
+    if (x->right->right == NULL)
+        return 0;
+    return x->right->right->height;
+}
+
+static long getRightLeftHeight(TLDNode *x)
+{
+    if (x == NULL)
+        return 0;
+    if (x->right == NULL)
+        return 0;
+    if (x->right->left == NULL)
+        return 0;
+    return x->right->left->height;
+}
+
+static void updateParent(TLDNode *parent, TLDNode *node)
+{
+    if (node == NULL)
+        return;
+    node->parent = parent;
+}
+
+TLDNode *tldnode_create(TLDNode *parent, char *tld, long height)
 {
     //TODO consider passing parent and tld only
     TLDNode *node;
@@ -54,50 +173,196 @@ TLDNode *tldnode_create(TLDNode *parent, char *tld, int height)
     return node;
 }
 
-//TLDNode functuons
-static int degree(TLDNode *node)
+static long math_max(long x1, long x2)
 {
-    int degree = 0;
-    if (node->left != NULL)
-        degree++;
-    if (node->right != NULL)
-        degree++;
-    return degree;
+    if (x1 >= x2)
+        return x1;
+    else
+        return x2;
 }
 
-static int isRoot(TLDNode *node)
+static void updateHeight(TLDNode *node)
 {
-   return node->parent == NULL ? 1 : 0;
+    if (node != NULL)
+    {
+        if (node->left != NULL && node->right != NULL)
+            node->height = math_max(node->left->height, node->right->height) + 1;
+        else if (node->left != NULL)
+            node->height = math_max(node->left->height, 0) + 1;
+        else if (node->right != NULL)
+            node->height = math_max(0, node->right->height) + 1;
+        else
+            node->height = 1;
+        updateHeight(node->parent);
+    }
 }
 
-static int isLeaf(TLDNode *node)
+static int isImbalanced(TLDNode *node)
 {
-   return degree(node) == 0 ? 1 : 0;
+    if (node == NULL)
+        return 0;
+    if (node->left != NULL && node->right != NULL)
+    {
+        long diff = (node->left)->height - (node->right)->height;
+        if ( diff < -1 || diff > 1)
+            return 1;
+        else
+            return 0;
+    }
+    else
+    {
+        if (node->left != NULL && node->left->height > 1)
+            return 1;
+        else if (node->right != NULL && node->right->height > 1)
+            return 1;
+        else
+            return 0;
+    }
 }
 
-static int isInternal(TLDNode *node)
+static TLDNode *findImbalanced(TLDNode *x)
 {
-   return degree(node) == 2 ? 1 : 0;
+    if (x == NULL)
+        return NULL;
+    else if (isImbalanced(x))
+        return x;
+    else
+        return findImbalanced(x->parent);
 }
 
-static int isLeftChild(TLDNode *node)
+static int case1(TLDNode *x)
 {
-   return &node == &(node->parent->left) ? 1 : 0;
+    return (getLeftHeight(x) > getRightHeight(x))
+            && (getLeftLeftHeight(x) > getLeftRightHeight(x));
 }
 
-static int isRightChild(TLDNode *node)
+static int case2(TLDNode *x)
 {
-   return &node == &(node->parent->right) ? 1 : 0;
+    return (getLeftHeight(x) > getRightHeight(x))
+            && ( getLeftRightHeight(x) > getLeftLeftHeight(x));
 }
 
-static int hasLeft(TLDNode *node)
+static int case3(TLDNode *x)
 {
-   return node->left != NULL ? 1 : 0;
+    return (getLeftHeight(x) < getRightHeight(x))
+            && ( getRightLeftHeight(x) > getRightRightHeight(x));
 }
 
-static int hasRight(TLDNode *node)
+static int case4(TLDNode *x)
 {
-   return node->right != NULL ? 1 : 0;
+    return (getLeftHeight(x) < getRightHeight(x))
+            && ( getRightRightHeight(x) > getRightLeftHeight(x));
+}
+
+static void LLRodation(TLDNode *x, TLDList *tld)
+{
+    TLDNode *k2 = x;
+    TLDNode *k1 = k2->left;
+    TLDNode *p = k2->parent;
+    if (p == NULL)
+    {
+        tld->root = k1;
+        k1->parent = NULL;
+    }
+    else if (isLeftChild(k2))
+        p->left = k1;
+    else
+        p->right = k1;
+
+    k2->left = k1->right;
+    updateParent(k2, k1->right);
+    k2->parent = k1;
+    k1->parent = p;
+    k1->right = k2;
+    updateHeight(k2);
+ }
+
+ static void RRRotation(TLDNode *x, TLDList *tld)
+{
+    TLDNode *k1 = x;
+    TLDNode *k2 = x->right;
+    TLDNode *p = k1->parent;
+    if (p == NULL)
+    {
+        tld->root = k2;
+        k2->parent = NULL;
+    }
+    else if (isLeftChild(k1))
+        p->left = k2;
+    else
+        p->right = k2;
+
+    k1->right = k2->left;
+    updateParent(k1, k2->left);
+    k1->parent = k2;
+    k2->parent = p;
+    k2->left = k1;
+    updateHeight(k1);
+ }
+
+ static void doubleRotate(TLDNode *k1, TLDNode *k2, TLDNode *k3, TLDNode *p, int isLeftChild, TLDList *tld)
+{
+    if (p == NULL)
+    {
+        tld->root = k2;
+        k2->parent = NULL;
+    }
+    else if (isLeftChild)
+    {
+        p->left = k2;
+        k2->parent = p;
+    }
+    else
+    {
+        p->right = k2;
+        k2->parent = p;
+    }
+    k3->left = k2->right;
+    updateParent(k3, k2->right);
+    k1->right = k2->left;
+    updateParent(k1, k2->left);
+    k2->left = k1;
+    k2->right = k3;
+    k1->parent = k2;
+    k3->parent = k2;
+    updateHeight(k1);
+    updateHeight(k3);
+}
+
+static void LRRotation(TLDNode *x, TLDList *tld)
+{
+    TLDNode *k1, *k2, *k3, *p;
+    k3 = x;
+    k1 = k3->left;
+    k2 = k1->right;
+    p = k3->parent;
+    doubleRotate(k1,k2,k3,p, p != NULL && isLeftChild(k3), tld);
+}
+
+static void RLRotation(TLDNode *x, TLDList *tld)
+{
+    TLDNode *k1, *k2, *k3, *p;
+    k1 = x;
+    k3 = k1->right;
+    k2 = k3->left;
+    p = k1->parent;
+    doubleRotate(k1,k2,k3,p, p != NULL && isLeftChild(k1), tld);
+}
+
+static void restoreBalance(TLDNode *node, TLDList *tld)
+{
+    TLDNode *x = findImbalanced(node->parent);
+    if (x != NULL)
+    {
+        if (case1(x))
+            LLRodation(x, tld);
+        else if (case2(x))
+            LRRotation(x, tld);
+        else if (case3(x))
+            RLRotation(x, tld);
+        else if (case4(x))
+            RRRotation(x, tld);
+    }
 }
 
 TLDList *tldlist_create(Date *begin, Date *end)
@@ -114,13 +379,22 @@ TLDList *tldlist_create(Date *begin, Date *end)
     return tldlist;
 }
 
+static void iterate_nodes_destroy(TLDNode *node)
+{
+    if (node == NULL)
+        return;
+    iterate_nodes_destroy(node->left);
+    iterate_nodes_destroy(node->right);
+    free(node);
+}
+
 void tldlist_destroy(TLDList *tld)
 {
-    //TODO iterate through the TLDNodes
+    iterate_nodes_destroy(tld->root);
     free(tld);
 }
 
-static int tldlist_insert(char *tldStr, TLDNode *node)
+static int tldlist_insert(char *tldStr, TLDNode *node, TLDList *tld)
 {
     int comparison = strcmp(tldStr, node->tld);
     if (comparison == 0)
@@ -130,33 +404,31 @@ static int tldlist_insert(char *tldStr, TLDNode *node)
     }
     else if (comparison < 0 && node->left == NULL)
     {
-        node->left = tldnode_create(node, tldStr, 0);
+        node->left = tldnode_create(node, tldStr, 1);
         if (node->left == NULL)
             return 0;
+        updateHeight(node->left);
+		restoreBalance(node->left, tld);
         return 1;//TODO height
     }
     else if (comparison < 0 && node->left != NULL)
-        return tldlist_insert(tldStr, node->left);
+        return tldlist_insert(tldStr, node->left, tld);
     else if (comparison > 0 && node->right == NULL)
     {
-        node->right = tldnode_create(node, tldStr, 0);
+        node->right = tldnode_create(node, tldStr, 1);
         if (node->right == NULL)
             return 0;
+        updateHeight(node->right);
+		restoreBalance(node->right, tld);
         return 1;//TODO height
     }
     else if (comparison > 0 && node->right != NULL)
-        return tldlist_insert(tldStr, node->right);
-
+        return tldlist_insert(tldStr, node->right, tld);
     return 0;
 }
 
 int tldlist_add(TLDList *tld, char *hostname, Date *d)
 {
-    /*printf("Date D is: %s/%s/%s \n", (*d).day, (*d).month, (*d).year);
-    printf("Date Begin is: %s/%s/%s \n", tld->begin->day, tld->begin->month, tld->begin->year);
-    printf("Date End is: %s/%s/%s \n", tld->end->day, tld->end->month, tld->end->year);
-    printf("Compare begin with date: %d\n", date_compare(tld->begin, d));
-    printf("Compare end with date: %d\n", date_compare(tld->end, d));*/
     if (date_compare(tld->begin, d) > 0 || date_compare(tld->end, d) < 0 )
         return 0;
     char *tldStr, *cur;
@@ -172,11 +444,9 @@ int tldlist_add(TLDList *tld, char *hostname, Date *d)
     tldStr++; //TLD
     char *tldValue = (char *)malloc(sizeof(char)*4);
     strcpy(tldValue, tldStr);
-    //printf("The TLD is: %s\n", tldValue);
-    //printf("TLD size before: %d\n", tld->size);
     if (isEmpty(tld))
     {
-        tld->root = tldnode_create(NULL, tldValue, 0);
+        tld->root = tldnode_create(NULL, tldValue, 1);
         if (tld->root != NULL)
         {
             tld->size++;
@@ -188,13 +458,12 @@ int tldlist_add(TLDList *tld, char *hostname, Date *d)
     }
     else
     {
-        int result = tldlist_insert(tldValue, tld->root);
+        int result = tldlist_insert(tldValue, tld->root, tld);
         if ( result != 0 )
         {
             if (result != 2) // if tld already exists, you don't need to increment the size of the tree.
                 tld->size++;
             tld->totalTLDs++;
-            //printf("TLD total: %d\n\n", tld->totalTLDs);
             return 1;
         }
         else
@@ -211,24 +480,16 @@ long tldlist_count(TLDList *tld)
 
 void inorder_traversal(TLDNode *inorder[], long *curIndex, long size, TLDNode *node)
 {
-    //printf("CurIndex - top %ld\n", *curIndex);
     if (hasLeft(node))
     {
-        //printf("Node %s has left = %ld, curIndex=%d\n", node->tld, hasLeft(node), *curIndex);
         inorder_traversal(inorder, curIndex, size, node->left);
     }
-    //printf("Node %s\n", node->tld);
     inorder[*curIndex] = node;
     (*curIndex)++;
-    //printf("CurIndex - middle %ld\n", *curIndex);
-    //printf("Current index of traversal: %d\n For Node: %s", curIndex, node->tld);
     if (hasRight(node))
     {
-        //printf("Node %s has right = %ld curIndex=%d\n", node->tld, hasRight(node), *curIndex);
         inorder_traversal(inorder, curIndex, size, node->right);
     }
-    //printf("CurIndex - bottom %ld\n\n", *curIndex);
-
 }
 
 TLDIterator *tldlist_iter_create(TLDList *tld)
@@ -238,24 +499,15 @@ TLDIterator *tldlist_iter_create(TLDList *tld)
     iter = (TLDIterator *)malloc(sizeof(TLDIterator));
     if (iter == NULL)
         return NULL;
-    //inorder = malloc(sizeof(TLDNode *)*(tld->size));
     long i;
-    /*for(i = 0; i < tld->size; i++)
-    {
-        inorder[i] = (TLDNode *)malloc(sizeof(TLDNode *));
-        //printf("Malloc successful [%d], %d\n", i, inorder[i] == NULL);
-    }*/
-
-    //if (inorder == NULL || tld->size)
-    //    return NULL;
     long *currentIndex = (long *)malloc(sizeof(long));
     *currentIndex = 0;
     inorder_traversal(inorder, currentIndex, tld->size, tld->root);
-    //printf("size is : %ld \n", tld->size);
+    free(currentIndex);
     for(i = 0; i < tld->size; i++)
     {
         //printf("i=%d\n", i);
-        printf("Node[%d] = %s\n", i, inorder[i]->tld);
+        printf("Node[%ld] = %s\n", i, inorder[i]->tld);
     }
     iter->inorder = inorder; // create inorder traversal of the tld list and save the pointers in this array
     iter->size = tld->size;
@@ -270,7 +522,8 @@ TLDNode *tldlist_iter_next(TLDIterator *iter)
 }
 void tldlist_iter_destroy(TLDIterator *iter)
 {
-    //TODO
+    free(iter->inorder);
+    free(iter);
 }
 char *tldnode_tldname(TLDNode *node)
 {
