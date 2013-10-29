@@ -3,13 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 
-//TODO REMOVE THE DATE STRUCK THAT IS SOOO WRONNNG!!!
-/*struct date {
-    char *year;
-    char *month;
-    char *day;
-};*/
-
 struct tldlist{
     Date *begin;
     Date *end;
@@ -27,7 +20,6 @@ struct tldnode{
     long height;
 };
 
-//TODO
 struct tlditerator{
     TLDNode **inorder;
     long next;
@@ -39,43 +31,11 @@ static int isEmpty(TLDList *list)
     return list->root == NULL ? 1 : 0;
 }
 
-static int isRoot(TLDNode *node)
-{
-   return node->parent == NULL ? 1 : 0;
-}
-
-static int degree(TLDNode *node)
-{
-    int degree = 0;
-    if (node->left != NULL)
-        degree++;
-    if (node->right != NULL)
-        degree++;
-    return degree;
-}
-
-static int isLeaf(TLDNode *node)
-{
-   return degree(node) == 0 ? 1 : 0;
-}
-
-static int isInternal(TLDNode *node)
-{
-   return degree(node) == 2 ? 1 : 0;
-}
-
 static int isLeftChild(TLDNode *node)
 {
    if (node->parent == NULL)
         return 0;
    return node == (node->parent->left) ? 1 : 0;
-}
-
-static int isRightChild(TLDNode *node)
-{
-    if (node->parent == NULL)
-        return 0;
-    return node == (node->parent->right) ? 1 : 0;
 }
 
 static int hasLeft(TLDNode *node)
@@ -159,7 +119,6 @@ static void updateParent(TLDNode *parent, TLDNode *node)
 
 TLDNode *tldnode_create(TLDNode *parent, char *tld, long height)
 {
-    //TODO consider passing parent and tld only
     TLDNode *node;
     node = (TLDNode *)malloc(sizeof(TLDNode));
     if (node == NULL)
@@ -385,6 +344,7 @@ static void iterate_nodes_destroy(TLDNode *node)
         return;
     iterate_nodes_destroy(node->left);
     iterate_nodes_destroy(node->right);
+    free(node->tld);
     free(node);
 }
 
@@ -400,6 +360,7 @@ static int tldlist_insert(char *tldStr, TLDNode *node, TLDList *tld)
     if (comparison == 0)
     {
         node->count++;
+        free(tldStr);
         return 2; //tld already is in the tree
     }
     else if (comparison < 0 && node->left == NULL)
@@ -420,7 +381,7 @@ static int tldlist_insert(char *tldStr, TLDNode *node, TLDList *tld)
             return 0;
         updateHeight(node->right);
 		restoreBalance(node->right, tld);
-        return 1;//TODO height
+        return 1;
     }
     else if (comparison > 0 && node->right != NULL)
         return tldlist_insert(tldStr, node->right, tld);
@@ -441,7 +402,7 @@ int tldlist_add(TLDList *tld, char *hostname, Date *d)
         }
         cur++;
     }
-    tldStr++; //TLD
+    tldStr++;
     char *tldValue = (char *)malloc(sizeof(char)*4);
     strcpy(tldValue, tldStr);
     if (isEmpty(tld))
@@ -469,7 +430,6 @@ int tldlist_add(TLDList *tld, char *hostname, Date *d)
         else
             return 0;
     }
-    //TODO remove default return
     return 0;
 }
 
@@ -499,19 +459,13 @@ TLDIterator *tldlist_iter_create(TLDList *tld)
     iter = (TLDIterator *)malloc(sizeof(TLDIterator));
     if (iter == NULL)
         return NULL;
-    long i;
     long *currentIndex = (long *)malloc(sizeof(long));
     *currentIndex = 0;
     inorder_traversal(inorder, currentIndex, tld->size, tld->root);
     free(currentIndex);
-    for(i = 0; i < tld->size; i++)
-    {
-        //printf("i=%d\n", i);
-        printf("Node[%ld] = %s\n", i, inorder[i]->tld);
-    }
-    iter->inorder = inorder; // create inorder traversal of the tld list and save the pointers in this array
+    iter->inorder = inorder;
     iter->size = tld->size;
-    iter->next = 0; //TODO check if correct
+    iter->next = 0;
     return iter;
 }
 TLDNode *tldlist_iter_next(TLDIterator *iter)

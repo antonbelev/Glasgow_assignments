@@ -1,5 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
 #include "date.h"
 
 struct date {
@@ -16,7 +18,6 @@ struct date {
  */
 Date *date_create(char *datestr)
 {
-    //TODO check iv datestr is in correct format!!!!!!
     Date *d;
     d = (Date *)malloc(sizeof(Date));
     if (d == NULL)
@@ -24,7 +25,15 @@ Date *date_create(char *datestr)
     char *day = (char *)malloc(3*sizeof(char));
     char *month = (char *)malloc(3*sizeof(char));
     char *year = (char *)malloc(5*sizeof(char));
-    memcpy( day, datestr, 2 );
+    int size = 0;
+    char *str = datestr;
+    while ( *str++ != '\0')
+        size++;
+    if (size < 10 || !isdigit(datestr[0]) || !isdigit(datestr[1]) || datestr[2] != '/'
+        || !isdigit(datestr[3]) || !isdigit(datestr[4]) || datestr[5] != '/'
+        || !isdigit(datestr[6]) || !isdigit(datestr[7]) || !isdigit(datestr[8]) || !isdigit(datestr[9]))
+        return NULL;
+    memcpy(day, datestr, 2 );
     day[2] = '\0';
     memcpy( month, datestr + 3, 2 );
     month[2] = '\0';
