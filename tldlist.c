@@ -1,3 +1,9 @@
+/*
+* Author: Anton Belev
+* ID: 1103816b
+* AP3 Exercise 1
+*/
+
 #include "tldlist.h"
 #include <stdlib.h>
 #include <string.h>
