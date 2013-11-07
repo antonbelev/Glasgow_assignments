@@ -1,0 +1,27 @@
+using your first program compute the shortest paths
+for the following word pairs :
+
+print paint
+forty fifty
+cheat solve
+worry happy
+smile frown
+small large
+black white
+greed money
+
+--------------------------------------------
+using your second program of the exercise compute
+the shortest path for the following word pairs (note
+the first few can also be used to test the correctness
+of the distance you have computed):
+
+blare blase
+blond blood
+allow alloy
+cheat solve
+worry happy
+print paint
+small large
+black white
+greed money 
