@@ -1,0 +1,54 @@
+package wordLadder;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+/**
+ program to find word ladder with shortest distance for two words in a dictionary
+ distance between elements of the word ladder is the absolute difference in the
+ positions of the alphabet of the non-matching letter
+ */
+public class Main {
+
+	public static void main(String[] args) throws IOException {
+
+		long start = System.currentTimeMillis();
+
+		String inputFileName = args[0]; // dictionary
+		String word1 = args[1]; // first word
+		String word2 = args[2]; // second word
+  
+		FileReader reader = new FileReader(inputFileName);
+		Scanner in = new Scanner(reader);		
+		Scanner lineScanner;
+		Graph graph = new Graph();
+		while (in.hasNextLine())
+		{
+			lineScanner = new Scanner(in.nextLine());
+			Vertex v = new Vertex(lineScanner.next(), graph.getVertices().size());
+			graph.addToList(v);
+			
+			for (Vertex vertex : graph.getVertices())
+			{
+				if (Graph.checkAdjacency(v.getWord(), vertex.getWord()))
+				{
+					
+				}
+			}
+			
+		}
+		reader.close();
+		
+		// create graph here
+		
+		
+		// do the work here
+		
+
+		// end timer and print total time
+		long end = System.currentTimeMillis();
+		System.out.println("\nElapsed time: " + (end - start) + " milliseconds");
+	}
+
+}

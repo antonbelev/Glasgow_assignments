@@ -1,0 +1,12 @@
+package wordLadder;
+
+public class Vertex {
+	
+	private LinkedList<AdjListNode> adjList;
+	private int index; // the index of the vertex in the graph
+	
+	public Vertex ()
+	{
+		
+	}
+}

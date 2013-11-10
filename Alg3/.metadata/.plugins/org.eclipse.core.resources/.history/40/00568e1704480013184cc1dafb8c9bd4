@@ -1,0 +1,9 @@
+package wordLadder;
+
+public class AdjListNode {
+
+	public AdjListNode ()
+	{
+	}
+	
+}

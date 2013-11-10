@@ -1,0 +1,11 @@
+package wordLadder;
+
+public class Vertex {
+	
+	private String word;
+	
+	public Vertex ()
+	{
+		
+	}
+}

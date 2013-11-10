@@ -1,0 +1,20 @@
+package wordLadder;
+
+import java.util.LinkedList;
+
+public class Vertex {
+	
+	private LinkedList<AdjListNode> adjList; //list with adjesent vetices
+	private int index; // the index of the vertex in the graph
+	private String word;
+	boolean visited; // whether vertex has been visited in a traversal
+    int predecessor; // index of predecessor vertex in a traversal
+	
+	public Vertex (int index)
+	{
+		this.index = index;
+		this.adjList = new LinkedList<AdjListNode>();
+	}
+	
+	public void addToList(String )
+}

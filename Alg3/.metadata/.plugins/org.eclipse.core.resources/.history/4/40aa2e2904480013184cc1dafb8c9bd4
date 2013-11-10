@@ -1,0 +1,11 @@
+package wordLadder;
+
+public class AdjListNode {
+	
+	private int vertexNumber;
+
+	public AdjListNode ()
+	{
+	}
+	
+}

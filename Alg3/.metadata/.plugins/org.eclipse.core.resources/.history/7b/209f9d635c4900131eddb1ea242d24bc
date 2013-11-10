@@ -1,0 +1,108 @@
+package wordLadder;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+public class Graph {
+	private ArrayList<Vertex> vertices;
+
+	// private int size;
+
+	public Graph() {
+		// this.size = 0;
+		this.vertices = new ArrayList<Vertex>();
+	}
+
+	public ArrayList<Vertex> getVertices() {
+		return vertices;
+	}
+
+	public void setVertices(ArrayList<Vertex> vertices) {
+		this.vertices = vertices;
+	}
+
+	public void addToList(Vertex v) {
+		this.vertices.add(v);
+	}
+
+	public static boolean checkAdjacency(String s1, String s2) {
+		int countDiff = 0;
+		for (int i = 0; i < s1.length(); i++) {
+			if (s1.charAt(i) != s2.charAt(i))
+				countDiff++;
+			if (countDiff > 1)
+				return false;
+		}
+		return true;
+	}
+
+	public void carryOutWordLadder(String start, String end) {
+		Vertex vEnd = bfs(start, end);
+		if (vEnd == null){
+			System.out.println("No ladder is possible!");
+			return;
+		}
+		
+		String[] path = new String[vEnd.getDistance()+1];		
+		int currIndex = vEnd.getIndex();
+		int predecessorIndex = vEnd.getPredecessor();
+		String output = "The shortest path from " + start + " to " + end + " is with length " + vEnd.getDistance();
+		int i = 0;
+		while (currIndex != predecessorIndex)
+		{
+			Vertex current = vertices.get(currIndex);
+			path[i] = current.getWord();
+			currIndex = predecessorIndex;
+			predecessorIndex = vertices.get(currIndex).getPredecessor();
+		}
+		String pathTrase = "";
+		for (int j = vEnd.getDistance(); j >= 0; j--)
+			pathTrase += path[j] + "->";
+		System.out.println(output + "\n" + path);
+		
+	}
+
+	public Vertex bfs(String start, String end) {
+		Vertex vStart = new Vertex();
+		Vertex vEnd = new Vertex();
+		for (Vertex v : vertices) {
+			if (v.getWord().equalsIgnoreCase(start))
+				vStart = v;
+			else if (v.getWord().equalsIgnoreCase(end))
+				vEnd = v;
+			v.setDistance(-1);
+			v.setVisited(false);
+		}
+		if (vStart.isEmpty() || vEnd.isEmpty())
+			return null;
+		LinkedList<Vertex> queue = new LinkedList<Vertex>(); // set up empty
+																// queue
+		vStart.setVisited(true);
+		vStart.setDistance(0); // initialize distance
+		vStart.setPredecessor(vStart.getIndex()); // v was initial/starting
+													// vertex
+		queue.add(vStart);
+		
+		while (!queue.isEmpty()) { // while vertices to process
+			Vertex u = queue.remove(); // get next vertex to process
+			LinkedList<AdjListNode> list = u.getAdjList(); // get adjacency list of the vertex
+			for (AdjListNode node : list) { // go through the adjacency list...
+				Vertex w = vertices.get(node.getVertexNumber());
+				if (!w.isVisited()) { // ...for vertices that have not been
+										// visited
+					w.setVisited(true); // they have now been visited
+					w.setPredecessor(u.getIndex());
+					w.setDistance(u.getDistance() + 1);// w was found using u so
+														// this is the
+														// predecessor
+					queue.add(w); // add vertex to the queue to be processed
+				}
+				if (w.equals(vEnd))
+					return vEnd;
+			}
+		}
+		
+		return null;
+	}
+
+}

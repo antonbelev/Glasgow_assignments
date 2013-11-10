@@ -1,0 +1,15 @@
+package wordLadder;
+
+import java.util.LinkedList;
+
+public class Vertex {
+	
+	private LinkedList<AdjListNode> adjList; //list with adjesent vetices
+	private int index; // the index of the vertex in the graph
+	
+	public Vertex (int index)
+	{
+		this.index = index;
+		this.adjList = new LinkedList<AdjListNode>();
+	}
+}
