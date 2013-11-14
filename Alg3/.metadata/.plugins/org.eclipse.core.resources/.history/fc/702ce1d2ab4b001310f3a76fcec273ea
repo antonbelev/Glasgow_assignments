@@ -1,0 +1,111 @@
+package wordLadder;
+
+import java.util.LinkedList;
+
+/**
+ * 
+ * @author Anton Belev
+ *
+ */
+
+public class Vertex {
+	
+	private LinkedList<AdjListNode> adjList; //list with adjesent vetices
+	private int index; // the index of the vertex in the graph
+	private String word;
+	boolean visited; // whether vertex has been visited in a traversal
+    int predecessor; // index of predecessor vertex in a traversal
+    int distance; // needed for bfs
+
+	@Override
+	public String toString() {
+		return "Vertex [adjList=" + adjList + ", index=" + index + ", word="
+				+ word + ", visited=" + visited + ", predecessor="
+				+ predecessor + "]";
+	}
+
+	public boolean equals(Vertex v)
+	{
+		return this.word.equals(v.getWord()); //since we can assume that the words in the dictionary are unique
+	}
+	
+	public boolean isEmpty()
+	{
+		return this.word == null || this.index == -1;
+	}
+
+	public Vertex ()
+	{
+		this.index = -1;
+		this.word = null;
+		this.visited = false;
+		this.predecessor = -1;
+		this.distance = -1;
+		this.adjList = new LinkedList<AdjListNode>();
+	}
+	
+	public Vertex (String word, int index)
+	{
+		this.word = word;
+		this.index = index;
+		this.visited = false;
+		this.predecessor = -1;
+		this.distance = -1;
+		this.adjList = new LinkedList<AdjListNode>();
+	}
+
+	public int getDistance() {
+		return distance;
+	}
+
+	public void setDistance(int distance) {
+		this.distance = distance;
+	}
+	
+	public LinkedList<AdjListNode> getAdjList() {
+		return adjList;
+	}
+
+	public void setAdjList(LinkedList<AdjListNode> adjList) {
+		this.adjList = adjList;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public String getWord() {
+		return word;
+	}
+
+	public void setWord(String word) {
+		this.word = word;
+	}
+
+	public boolean isVisited() {
+		return visited;
+	}
+
+	public void setVisited(boolean visited) {
+		this.visited = visited;
+	}
+
+
+	public int getPredecessor() {
+		return predecessor;
+	}
+
+
+	public void setPredecessor(int predecessor) {
+		this.predecessor = predecessor;
+	}
+
+
+	public void addToAdjList(int n, int weight){
+        adjList.addLast(new AdjListNode(n, weight));
+    }
+}

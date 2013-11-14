@@ -11,9 +11,9 @@ public class AdjListNode {
 	private int vertexNumber;
 	private int weight;
 
-	public AdjListNode(int n){
-		vertexNumber = n;
-		weight = -1;
+	public AdjListNode(int n, int weight){
+		this.vertexNumber = n;
+		this.weight = weight;
 	}
 	
 	public int getVertexNumber(){

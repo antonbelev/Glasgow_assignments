@@ -2,6 +2,9 @@ package wordLadder;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Stack;
+
+import wordLadder.Vertex;
 
 /**
  * 
@@ -48,27 +51,29 @@ public class Graph {
 			System.out.println("No ladder is possible!");
 			return;
 		}
+		//TODO use stack
+		Stack<String> path = new Stack<String>();
 		
-		String[] path = new String[vEnd.getDistance()+1];		
 		int currIndex = vEnd.getIndex();
 		int predecessorIndex = vEnd.getPredecessor();
 		String output = "The shortest path from " + start + " to " + end + " is with length " + vEnd.getDistance();
-		int i = 0;
-		while (i < path.length)
+		while (currIndex != predecessorIndex)
 		{
 			Vertex current = vertices.get(currIndex);
-			path[i] = current.getWord();
+			path.push(current.getWord());
 			currIndex = predecessorIndex;
 			predecessorIndex = vertices.get(currIndex).getPredecessor();
-			i++;
 		}
+		
+		Vertex current = vertices.get(currIndex);
+		path.push(current.getWord());
+		
 		String pathTrase = "";
-		for (int j = vEnd.getDistance(); j >= 0; j--)
-		{
-			if (j != 0)
-				pathTrase += path[j] + "->";
+		while (path.size() != 0) {
+			if (path.size() > 1)
+				pathTrase += path.pop() + "->";
 			else
-				pathTrase += path[j];
+				pathTrase += path.pop();
 		}
 		System.out.println(output + "\n" + pathTrase);
 		

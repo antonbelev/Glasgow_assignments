@@ -1,7 +1,10 @@
 package dijkstra;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Stack;
 
 /**
  * 
@@ -42,39 +45,59 @@ public class Graph {
 		return true;
 	}
 
-	public void carryOutWordLadder(String start, String end) {
-		Vertex vEnd = bfs(start, end);
+	public void carryOutDijkstra(String start, String end) {
+		Vertex vEnd = dijkstra(start, end);
 		if (vEnd == null){
 			System.out.println("No ladder is possible!");
 			return;
 		}
+
+		Stack<String> path = new Stack<String>();
 		
-		String[] path = new String[vEnd.getDistance()+1];		
 		int currIndex = vEnd.getIndex();
 		int predecessorIndex = vEnd.getPredecessor();
 		String output = "The shortest path from " + start + " to " + end + " is with length " + vEnd.getDistance();
-		int i = 0;
-		while (i < path.length)
+
+		while (currIndex != predecessorIndex)
 		{
 			Vertex current = vertices.get(currIndex);
-			path[i] = current.getWord();
+			path.push(current.getWord());
 			currIndex = predecessorIndex;
 			predecessorIndex = vertices.get(currIndex).getPredecessor();
-			i++;
 		}
+		
+		Vertex current = vertices.get(currIndex);
+		path.push(current.getWord());
+		
 		String pathTrase = "";
-		for (int j = vEnd.getDistance(); j >= 0; j--)
-		{
-			if (j != 0)
-				pathTrase += path[j] + "->";
+		while (path.size() != 0){
+			if (path.size() > 1)
+				pathTrase += path.pop() + "->";
 			else
-				pathTrase += path[j];
+				pathTrase += path.pop();
 		}
 		System.out.println(output + "\n" + pathTrase);
 		
 	}
+	
+	public class VertexComparator implements Comparator<Vertex>
+	{
+	    @Override
+	    public int compare(Vertex x, Vertex y)
+	    {
+	        if (x.getDistance() < y.getDistance())
+	        {
+	            return -1;
+	        }
+	        if (x.getDistance() > y.getDistance())
+	        {
+	            return 1;
+	        }
+	        return 0;
+	    }
+	}
 
-	public Vertex bfs(String start, String end) {
+	public Vertex dijkstra(String start, String end) {
 		Vertex vStart = new Vertex();
 		Vertex vEnd = new Vertex();
 		for (Vertex v : vertices) {
@@ -87,8 +110,11 @@ public class Graph {
 		}
 		if (vStart.isEmpty() || vEnd.isEmpty())
 			return null;
-		LinkedList<Vertex> queue = new LinkedList<Vertex>(); // set up empty
-																// queue
+		
+		Comparator<Vertex> comparator = new VertexComparator();
+		
+		PriorityQueue<Vertex> queue = new PriorityQueue<Vertex>(128, comparator);
+		
 		vStart.setVisited(true);
 		vStart.setDistance(0); // initialize distance
 		vStart.setPredecessor(vStart.getIndex()); // v was initial/starting
@@ -98,16 +124,15 @@ public class Graph {
 		while (!queue.isEmpty()) { // while vertices to process
 			Vertex u = queue.remove(); // get next vertex to process
 			LinkedList<AdjListNode> list = u.getAdjList(); // get adjacency list of the vertex
+			
 			for (AdjListNode node : list) { // go through the adjacency list...
-				Vertex w = vertices.get(node.getVertexNumber());
+				Vertex w = vertices.get(node.getVertexNumber());				
 				if (!w.isVisited()) { // ...for vertices that have not been
 										// visited
 					w.setVisited(true); // they have now been visited
 					w.setPredecessor(u.getIndex());
-					w.setDistance(u.getDistance() + 1);// w was found using u so
-														// this is the
-														// predecessor
-					queue.add(w); // add vertex to the queue to be processed
+					w.setDistance(u.getDistance() + node.getWeight());
+					queue.add(w); 
 				}
 				if (w.equals(vEnd))
 					return vEnd;
@@ -115,6 +140,14 @@ public class Graph {
 		}
 		
 		return null;
+	}
+
+	public static int calcualteWeight(String s1, String s2) {
+		for (int i = 0; i < s1.length(); i++) { // I assume that the two strings differ in only one letter
+			if (s1.charAt(i) != s2.charAt(i))   // since I've already checked if they are adjacent
+				return Math.abs((int)s1.charAt(i) - (int)s2.charAt(i));
+		}
+		return 0;
 	}
 
 }

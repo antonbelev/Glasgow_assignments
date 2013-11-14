@@ -105,7 +105,7 @@ public class Vertex {
 	}
 
 
-	public void addToAdjList(int n){
-        adjList.addLast(new AdjListNode(n));
+	public void addToAdjList(int n, int weight){
+        adjList.addLast(new AdjListNode(n, weight));
     }
 }
