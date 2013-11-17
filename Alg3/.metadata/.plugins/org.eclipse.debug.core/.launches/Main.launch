@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="wordLadder.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="words5.txt smile frown"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="words5.txt blare blase"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Alg3_assessed"/>
 </launchConfiguration>

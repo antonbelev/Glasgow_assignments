@@ -48,7 +48,7 @@ public class Graph {
 	public void carryOutDijkstra(String start, String end) {
 		Vertex vEnd = dijkstra(start, end);
 		if (vEnd == null){
-			System.out.println("No ladder is possible!");
+			System.out.println(start + " " + end + "\nNo ladder is possible!");
 			return;
 		}
 
@@ -56,7 +56,7 @@ public class Graph {
 		
 		int currIndex = vEnd.getIndex();
 		int predecessorIndex = vEnd.getPredecessor();
-		String output = "The shortest path from " + start + " to " + end + " is with length " + vEnd.getDistance();
+		String output = start + " " + end + "\nTotal weight " + vEnd.getDistance();
 
 		while (currIndex != predecessorIndex)
 		{

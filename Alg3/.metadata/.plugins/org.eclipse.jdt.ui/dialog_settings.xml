@@ -46,7 +46,7 @@
 	<section name="NewClassWizardPage">
 		<item value="false" key="create_constructor"/>
 		<item value="true" key="create_unimplemented"/>
-		<item value="false" key="create_main"/>
+		<item value="true" key="create_main"/>
 	</section>
 	<section name="SourceActionDialog.methods">
 		<item value="false" key="SkipNull"/>

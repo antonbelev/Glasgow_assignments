@@ -15,7 +15,7 @@ public class Vertex {
 	private String word;
 	boolean visited; // whether vertex has been visited in a traversal
     int predecessor; // index of predecessor vertex in a traversal
-    int distance; // needed for total weight
+    int distance; // needed for bfs
 
 	@Override
 	public String toString() {

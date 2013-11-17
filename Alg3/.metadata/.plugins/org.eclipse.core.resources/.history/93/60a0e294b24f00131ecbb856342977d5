@@ -48,14 +48,14 @@ public class Graph {
 	public void carryOutWordLadder(String start, String end) {
 		Vertex vEnd = bfs(start, end);
 		if (vEnd == null){
-			System.out.println(start + " " + end + "\nNo ladder is possible!");
+			System.out.println("No ladder is possible!");
 			return;
 		}
 		Stack<String> path = new Stack<String>();
 		
 		int currIndex = vEnd.getIndex();
 		int predecessorIndex = vEnd.getPredecessor();
-		String output = start + " " + end + "\nTotal lenght " + vEnd.getDistance();
+		String output = "The shortest path from " + start + " to " + end + " is with length " + vEnd.getDistance();
 		while (currIndex != predecessorIndex)
 		{
 			Vertex current = vertices.get(currIndex);

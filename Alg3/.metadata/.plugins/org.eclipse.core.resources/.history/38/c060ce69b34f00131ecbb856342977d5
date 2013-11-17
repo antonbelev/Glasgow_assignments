@@ -48,7 +48,7 @@ public class Graph {
 	public void carryOutWordLadder(String start, String end) {
 		Vertex vEnd = bfs(start, end);
 		if (vEnd == null){
-			System.out.println(start + " " + end + "\nNo ladder is possible!");
+			System.out.println(start + " " + end + "\n +"No ladder is possible!");
 			return;
 		}
 		Stack<String> path = new Stack<String>();
