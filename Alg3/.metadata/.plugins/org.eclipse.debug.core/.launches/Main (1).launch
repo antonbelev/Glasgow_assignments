@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="dijkstra.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="words5.txt greed money"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="words5.txt fifty forty"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Alg3_assessed"/>
 </launchConfiguration>

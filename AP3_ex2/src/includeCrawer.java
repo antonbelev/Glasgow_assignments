@@ -1,0 +1,217 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class includeCrawer implements Runnable {
+
+	private static ConcurrentHashMap<String, CopyOnWriteArrayList<String>> hm;
+	private static ConcurrentLinkedQueue<String> workQ;
+	private static CopyOnWriteArrayList<String> dir;
+
+	public static void main(String[] args) {
+
+		hm = new ConcurrentHashMap<String, CopyOnWriteArrayList<String>>();
+		workQ = new ConcurrentLinkedQueue<String>();
+		dir = new CopyOnWriteArrayList<String>();
+
+		String path = System.getenv("CPATH");
+		int numThreads = Integer.parseInt(System.getenv("CRAWLER_THREADS"));
+		int cPaths = 0;
+		/*
+		 * determine the number of fields in CPATH
+		 */
+		if (path != null)
+			cPaths = path.split(";").length;
+		int i, filesStartAt;
+		/*
+		 * determine the number of -Idir arguments
+		 */
+		for (i = 0; i < args.length; i++) {
+			if (!args[i].subSequence(0, 2).equals("-I"))
+				break;
+		}
+
+		filesStartAt = i;
+		// TODO current windows folder >>
+		// dir.add("./"); /* always search current directory first */
+		for (i = 0; i < filesStartAt; i++) {
+			dir.add(args[i].substring(2, args[i].length()));
+		}
+
+		if (cPaths > 0) { // TODO change to Linux path separator
+			// path = path.replace('\\', '/');
+			String[] dirs = path.split(";");
+			for (String s : dirs)
+				dir.add(s);
+		}
+
+		for (String s : dir) {
+			System.out.println(s);
+		}
+		String root, ext, obj;
+
+		for (i = filesStartAt; i < args.length; i++) {
+			String file = args[i];
+			System.out.println("Next file: " + file);
+			String[] fileArray = file.split("\\.");
+
+			if (fileArray.length != 2
+					|| (!fileArray[1].equals("c") && !fileArray[1].equals("y") && !fileArray[1]
+							.equals("l"))) {
+				System.out
+						.println("Illegal extension: %s - must be .c, .y or .l");
+				return;
+			}
+			root = fileArray[0];
+			ext = fileArray[1];
+			obj = root + ".o";
+			CopyOnWriteArrayList<String> fileDependancy = new CopyOnWriteArrayList<String>();
+			fileDependancy.add(file);
+			workQ.add(file);
+			hm.put(file, new CopyOnWriteArrayList<String>());
+			hm.put(obj, fileDependancy);
+		}
+
+		List threads = new ArrayList();
+
+		for (int j = 0; j < numThreads; j++) {
+			Thread t = new Thread(new includeCrawer());
+			t.start();
+			threads.add(t);
+		}
+		for (int j = 0; j < threads.size(); j++) {
+			try {
+				((Thread) threads.get(j)).join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		/*
+		 * String nextFile = workQ.poll(); while (nextFile != null) {
+		 * //System.out.println("nextFile while loop");
+		 * CopyOnWriteArrayList<String> ll = hm.get(nextFile); process(nextFile,
+		 * ll); hm.put(nextFile, ll); nextFile = workQ.poll(); }
+		 */
+
+		for (i = filesStartAt; i < args.length; i++) {
+			String root2, ext2, obj2;
+			root2 = args[i].split("\\.")[0];
+			ext2 = args[i].split("\\.")[1];
+			obj2 = root2 + ".o";
+			String result = "";
+			result += obj2 + ": ";
+			ConcurrentHashMap<String, CopyOnWriteArrayList<String>> printed = new ConcurrentHashMap<String, CopyOnWriteArrayList<String>>();
+			printed.put(obj2, new CopyOnWriteArrayList<String>());
+			ConcurrentLinkedQueue<String> toProcess = new ConcurrentLinkedQueue<String>();
+			toProcess.add(obj2);
+			result += printDependencies(printed, toProcess) + "\n";
+			System.out.println(result);
+		}
+
+	}
+
+	private static String printDependencies(
+			ConcurrentHashMap<String, CopyOnWriteArrayList<String>> printed,
+			ConcurrentLinkedQueue<String> toProcess) {
+		String result = "";
+		String p = toProcess.poll();
+		CopyOnWriteArrayList<String> ll;
+
+		while (p != null) {
+			// System.out.println("printDependencies while loop");
+			ll = hm.get(p);
+			for (int i = 0; i < ll.size(); i++) {
+				if (printed.containsKey(ll.get(i)))
+					continue;
+				result += ll.get(i) + " ";
+				printed.put(ll.get(i), new CopyOnWriteArrayList<String>());
+				toProcess.add(ll.get(i));
+			}
+			p = toProcess.poll();
+		}
+		return result;
+	}
+
+	public static void process(String fileName, CopyOnWriteArrayList<String> ll) {
+
+		File f = openFile(fileName);
+
+		if (f == null) {
+			System.out.println("Error opening " + fileName);
+			return;
+		}
+
+		try {
+			Scanner sn = new Scanner(f);
+			Scanner lineSc;
+			while (sn.hasNextLine()) {
+				// System.out.println("process while loop");
+				lineSc = new Scanner(sn.nextLine());
+				if (!lineSc.hasNext())
+					continue;
+				String include = lineSc.next();
+				// System.out.println("next line " + include);
+
+				if (!include.endsWith("#include"))
+					continue;
+
+				String file = lineSc.next();
+				// System.out.println("File - " + file);
+				if (Character.compare(file.charAt(0), '\"') != 0)
+					continue;
+
+				// if (Character.compare(file.charAt(1), '<') == 0)// case
+				// "<stdio.h>"
+				// continue;
+
+				file = file.substring(1, file.length() - 1);
+				// System.out.println("New file - " + file);
+				ll.add(file); // get file name without ""
+
+				if (hm.containsKey(file))
+					continue;
+
+				hm.put(file, new CopyOnWriteArrayList<String>());
+				workQ.add(file);
+			}
+			sn.close();
+
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found error.");
+			e.printStackTrace();
+		}
+	}
+
+	private static File openFile(String fileName) {
+		File f = null;
+		for (int i = 0; i < dir.size(); i++) {
+			f = new File(dir.get(i) + "\\" + fileName); // TODO consider
+														// Linux/Windows paths
+			if (f.exists()) {
+				//System.out.println("File found " + fileName);
+				break;
+			}
+		}
+		return f;
+	}
+
+	@Override
+	public void run() {
+		// System.out.println("Hello from thread");
+		String nextFile = workQ.poll();
+		while (nextFile != null) {
+			// System.out.println("nextFile while loop");
+			CopyOnWriteArrayList<String> ll = hm.get(nextFile);
+			process(nextFile, ll);
+			hm.put(nextFile, ll);
+			nextFile = workQ.poll();
+		}
+	}
+
+}
