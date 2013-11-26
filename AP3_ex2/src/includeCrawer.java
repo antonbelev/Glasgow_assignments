@@ -20,7 +20,10 @@ public class includeCrawer implements Runnable {
 		dir = new CopyOnWriteArrayList<String>();
 
 		String path = System.getenv("CPATH");
-		int numThreads = Integer.parseInt(System.getenv("CRAWLER_THREADS"));
+		String threadsStr = System.getenv("CRAWLER_THREADS");
+		int numThreads = 2;
+		if (threadsStr != null)
+			numThreads = Integer.parseInt(threadsStr);
 		int cPaths = 0;
 		/*
 		 * determine the number of fields in CPATH
@@ -78,7 +81,7 @@ public class includeCrawer implements Runnable {
 		}
 
 		List threads = new ArrayList();
-
+		//if CRAWLER_THREADS is not specified the default value for worker threads is 2
 		for (int j = 0; j < numThreads; j++) {
 			Thread t = new Thread(new includeCrawer());
 			t.start();
@@ -194,7 +197,7 @@ public class includeCrawer implements Runnable {
 			f = new File(dir.get(i) + "\\" + fileName); // TODO consider
 														// Linux/Windows paths
 			if (f.exists()) {
-				//System.out.println("File found " + fileName);
+				// System.out.println("File found " + fileName);
 				break;
 			}
 		}
@@ -203,7 +206,7 @@ public class includeCrawer implements Runnable {
 
 	@Override
 	public void run() {
-		// System.out.println("Hello from thread");
+		//System.out.println("Hello from thread");
 		String nextFile = workQ.poll();
 		while (nextFile != null) {
 			// System.out.println("nextFile while loop");
