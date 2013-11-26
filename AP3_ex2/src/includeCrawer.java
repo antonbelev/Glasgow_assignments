@@ -29,7 +29,7 @@ public class includeCrawer implements Runnable {
 		 * determine the number of fields in CPATH
 		 */
 		if (path != null)
-			cPaths = path.split(";").length;
+			cPaths = path.split(":").length;
 		int i, filesStartAt;
 		/*
 		 * determine the number of -Idir arguments
@@ -41,26 +41,22 @@ public class includeCrawer implements Runnable {
 
 		filesStartAt = i;
 		// TODO current windows folder >>
-		// dir.add("./"); /* always search current directory first */
+		dir.add("./"); /* always search current directory first */
 		for (i = 0; i < filesStartAt; i++) {
 			dir.add(args[i].substring(2, args[i].length()));
 		}
 
 		if (cPaths > 0) { // TODO change to Linux path separator
 			// path = path.replace('\\', '/');
-			String[] dirs = path.split(";");
+			String[] dirs = path.split(":");
 			for (String s : dirs)
 				dir.add(s);
 		}
-
-		for (String s : dir) {
-			System.out.println(s);
-		}
+		
 		String root, ext, obj;
 
 		for (i = filesStartAt; i < args.length; i++) {
 			String file = args[i];
-			System.out.println("Next file: " + file);
 			String[] fileArray = file.split("\\.");
 
 			if (fileArray.length != 2
@@ -194,7 +190,7 @@ public class includeCrawer implements Runnable {
 	private static File openFile(String fileName) {
 		File f = null;
 		for (int i = 0; i < dir.size(); i++) {
-			f = new File(dir.get(i) + "\\" + fileName); // TODO consider
+			f = new File(dir.get(i) + "/" + fileName); // TODO consider
 														// Linux/Windows paths
 			if (f.exists()) {
 				// System.out.println("File found " + fileName);
