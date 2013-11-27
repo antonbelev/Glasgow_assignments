@@ -12,6 +12,9 @@ public class includeCrawler implements Runnable {
 	private static ConcurrentHashMap<String, CopyOnWriteArrayList<String>> hm;
 	private static ConcurrentLinkedQueue<String> workQ;
 	private static CopyOnWriteArrayList<String> dir;
+	private static int numOfWorkThreads;
+	private static int numWaitingThreads;
+	private static boolean isWorking;
 
 	public static void main(String[] args) {
 
@@ -28,8 +31,8 @@ public class includeCrawler implements Runnable {
 		/*
 		 * determine the number of fields in CPATH
 		 */
-		if (path != null)
-			cPaths = path.split(":").length;
+		if (path != null) //TODO windows separator
+			cPaths = path.split(";").length;
 		int i, filesStartAt;
 		/*
 		 * determine the number of -Idir arguments
@@ -41,14 +44,14 @@ public class includeCrawler implements Runnable {
 
 		filesStartAt = i;
 		// TODO current windows folder >>
-		dir.add("./"); /* always search current directory first */
+		//dir.add("./"); /* always search current directory first */
 		for (i = 0; i < filesStartAt; i++) {
 			dir.add(args[i].substring(2, args[i].length()));
 		}
 
 		if (cPaths > 0) { // TODO change to Linux path separator
 			// path = path.replace('\\', '/');
-			String[] dirs = path.split(":");
+			String[] dirs = path.split(";");
 			for (String s : dirs)
 				dir.add(s);
 		}
@@ -77,12 +80,16 @@ public class includeCrawler implements Runnable {
 		}
 
 		List threads = new ArrayList();
+		numOfWorkThreads = numThreads;
+		if (numThreads >= 1)
+			isWorking = true;
 		//if CRAWLER_THREADS is not specified the default value for worker threads is 2
 		for (int j = 0; j < numThreads; j++) {
 			Thread t = new Thread(new includeCrawler());
 			t.start();
 			threads.add(t);
 		}
+		
 		for (int j = 0; j < threads.size(); j++) {
 			try {
 				((Thread) threads.get(j)).join();
@@ -177,7 +184,11 @@ public class includeCrawler implements Runnable {
 					continue;
 
 				hm.put(file, new CopyOnWriteArrayList<String>());
-				workQ.add(file);
+				synchronized(workQ) {
+					workQ.add(file);
+					numWaitingThreads--;
+					workQ.notifyAll();
+				}
 			}
 			sn.close();
 
@@ -190,7 +201,7 @@ public class includeCrawler implements Runnable {
 	private static File openFile(String fileName) {
 		File f = null;
 		for (int i = 0; i < dir.size(); i++) {
-			f = new File(dir.get(i) + "/" + fileName); // TODO consider
+			f = new File(dir.get(i) + "\\" + fileName); // TODO consider
 														// Linux/Windows paths
 			if (f.exists()) {
 				// System.out.println("File found " + fileName);
@@ -203,7 +214,33 @@ public class includeCrawler implements Runnable {
 	@Override
 	public void run() {
 		//System.out.println("Hello from thread");
-		String nextFile = workQ.poll();
+		String nextFile;
+		while ((nextFile = workQ.poll())  == null)
+		{
+			try {
+				synchronized(workQ) {					
+					//System.out.println("waiting " + numWaitingThreads + " total " + numOfWorkThreads);									
+					if (numWaitingThreads >= numOfWorkThreads)
+					{
+						isWorking = false;
+						workQ.notifyAll();
+					}
+					else
+					{
+						numWaitingThreads++;
+						//System.out.println(Thread.currentThread().getName() + " is going to sleep");
+						workQ.wait();
+					}
+					
+					if (!isWorking)
+					{
+						break;
+					}					
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		while (nextFile != null) {
 			// System.out.println("nextFile while loop");
 			CopyOnWriteArrayList<String> ll = hm.get(nextFile);
