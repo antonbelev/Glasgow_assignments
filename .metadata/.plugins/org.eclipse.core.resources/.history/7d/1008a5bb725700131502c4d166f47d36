@@ -45,7 +45,7 @@ public class includeCrawler implements Runnable {
 
 		filesStartAt = i;
 		// TODO current windows folder >>
-		dir.add("./"); /* always search current directory first */
+		//dir.add("./"); /* always search current directory first */
 		for (i = 0; i < filesStartAt; i++) {
 			dir.add(args[i].substring(2, args[i].length()));
 		}
@@ -202,7 +202,7 @@ public class includeCrawler implements Runnable {
 	private static File openFile(String fileName) {
 		File f = null;
 		for (int i = 0; i < dir.size(); i++) {
-			f = new File(dir.get(i) + "/" + fileName); // TODO consider
+			f = new File(dir.get(i) + "\\" + fileName); // TODO consider
 														// Linux/Windows paths
 			if (f.exists()) {
 				// System.out.println("File found " + fileName);
