@@ -118,7 +118,7 @@ public class includeCrawler implements Runnable {
 			ConcurrentLinkedQueue<String> toProcess = new ConcurrentLinkedQueue<String>();
 			toProcess.add(obj2);
 			result += printDependencies(printed, toProcess) + "\n";
-			System.out.print(result);
+			System.out.println(result);
 		}
 
 	}
