@@ -51,7 +51,7 @@ public class includeCrawler implements Runnable {
 
 		if (cPaths > 0) { // TODO change to Linux path separator
 			// path = path.replace('\\', '/');
-			String[] dirs = path.split(":");
+			String[] dirs = path.split(";");
 			for (String s : dirs)
 				dir.add(s);
 		}
@@ -201,7 +201,7 @@ public class includeCrawler implements Runnable {
 	private static File openFile(String fileName) {
 		File f = null;
 		for (int i = 0; i < dir.size(); i++) {
-			f = new File(dir.get(i) + "/" + fileName); // TODO consider
+			f = new File(dir.get(i) + "\\" + fileName); // TODO consider
 														// Linux/Windows paths
 			if (f.exists()) {
 				// System.out.println("File found " + fileName);
